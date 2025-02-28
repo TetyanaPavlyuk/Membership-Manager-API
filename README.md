@@ -19,3 +19,8 @@ Docker should be installed
 docker build -t fastapi-app .
 docker run -d -p 8000:8000 --name backend-container fastapi-app
 ```
+
+#### To run the tests in docker, use the following command
+```bash
+docker exec -it backend-container poetry run pytest
+```
