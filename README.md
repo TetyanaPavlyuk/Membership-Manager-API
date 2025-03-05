@@ -31,9 +31,7 @@ poetry run pytest
 ### Run with Docker
 Docker should be installed and running.
 ```bash
-docker build -t fastapi-app .
-docker run --env-file .env -p 8000:8000 --name backend-container fastapi-app
-
+docker-compose up --build
 ```
 
 To run the tests in docker, use the following command
