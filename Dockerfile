@@ -25,7 +25,7 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --no-root
 
 # copy the source code
-COPY ./app /app/
+COPY ./app /app/app
 
 # run server
-CMD ["sh", "-c", "poetry run uvicorn main:app --host ${BACKEND_HOST} --port ${BACKEND_PORT}"]
+CMD ["sh", "-c", "poetry run uvicorn app.main:app --host ${BACKEND_HOST} --port ${BACKEND_PORT}"]

@@ -1,16 +1,11 @@
-import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
+from app.config.settings import settings
 
-
-load_dotenv()
 
 app = FastAPI()
 
-origins = [
-    f"http://{os.getenv('FRONTEND_HOST')}:{os.getenv('FRONTEND_PORT')}"
-]
+origins = settings.parse_origins
 
 app.add_middleware(
     CORSMiddleware,
