@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str = ""
 
+    @property
+    def POSTGRES_URL(self) -> str:
+        return (f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+                f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}")
+
     # Redis
     REDIS_HOST: str = "redis_db"
     REDIS_PORT: int = 6379
