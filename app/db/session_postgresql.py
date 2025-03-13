@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from app.utils.logger import async_log
 
 from app.config.settings import settings
 
@@ -16,4 +17,6 @@ AsyncSessionLocal = sessionmaker(
 
 async def get_db():
     async with AsyncSessionLocal() as session:
+        await async_log("Connecting to database")
         yield session
+        await async_log("Database connection closed.")

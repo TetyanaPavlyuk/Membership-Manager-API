@@ -28,4 +28,4 @@ RUN poetry install --no-root
 COPY ./app /app/app
 
 # run server
-CMD ["sh", "-c", "poetry run uvicorn app.main:app --host ${BACKEND_HOST} --port ${BACKEND_PORT}"]
+CMD ["sh", "-c", "poetry run uvicorn app.main:server.app --host ${BACKEND_HOST} --port ${BACKEND_PORT}"]
