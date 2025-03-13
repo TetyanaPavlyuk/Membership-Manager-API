@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     ORIGINS: str = "http://localhost:3000"
 
     # PostgreSQL
-    POSTGRES_HOST: str = "postgres_db"
+    POSTGRES_HOST: str = "postgres_host"
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str
     POSTGRES_USER: str
