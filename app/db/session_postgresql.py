@@ -15,7 +15,7 @@ AsyncSessionLocal = sessionmaker(
 )
 
 
-async def get_db():
+async def get_async_db():
     async with AsyncSessionLocal() as session:
         await async_log("Connecting to database")
         yield session
