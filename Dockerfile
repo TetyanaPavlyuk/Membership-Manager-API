@@ -15,8 +15,8 @@ ENV PATH="$POETRY_HOME/bin:$PATH"
 WORKDIR /app
 
 # copy dependency files
-COPY poetry.lock /app/
-COPY pyproject.toml /app/
+COPY ./poetry.lock /app/
+COPY ./pyproject.toml /app/
 
 # disable virtual environment Poetry
 RUN poetry config virtualenvs.create false
@@ -26,6 +26,10 @@ RUN poetry install --no-root
 
 # copy the source code
 COPY ./app /app/app
+COPY ./alembic /app/alembic
+COPY ./commands /app/commands
+COPY ./alembic.ini /app/
+COPY ./pytest.ini /app/
 
-# run server
-CMD ["sh", "-c", "poetry run uvicorn app.main:server.app --host ${BACKEND_HOST} --port ${BACKEND_PORT}"]
+# Add execute bit to commands files
+RUN chmod +x /app/commands/*.sh

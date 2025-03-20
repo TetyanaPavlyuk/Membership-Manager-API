@@ -15,7 +15,8 @@ class UserRepository:
 
     async def get_users_count(self):
         try:
-            return await self.db.execute(select(func.count()).select_from(UserModel))
+            users_count = await self.db.execute(select(func.count()).select_from(UserModel))
+            return users_count.scalar() or 0
         except SQLAlchemyError as e:
             await async_log(f"Failed to get users count from DB: {e}")
             raise
@@ -23,7 +24,7 @@ class UserRepository:
 
     async def get_users(self, offset: int, limit: int):
         try:
-            result = await self.db.execute(select(UserModel).offset(offset).limit(limit))
+            result = await self.db.execute(select(UserModel).offset(offset - 1).limit(limit))
             users = result.scalars().all()
             return users
         except SQLAlchemyError as e:

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from app.dependencies.users import get_user_service
 from app.services.users import UserService
-from app.schemas.users import UserBaseSchema, UserListSchema, UserDetailSchema, UserSignUpSchema, UserSignInSchema, UserUpdateSchema
+from app.schemas.users import UserBaseSchema, UserListSchema, UserDetailSchema, UserSignUpSchema, UserUpdateSchema
 
 
 class UserRouter:
@@ -12,8 +12,8 @@ class UserRouter:
         self.router.add_api_route("/", self.get_users, methods=["GET"], response_model=UserListSchema)
         self.router.add_api_route("/{id}/", self.get_user, methods=["GET"], response_model=UserDetailSchema)
         self.router.add_api_route("/", self.create_user, methods=["POST"], response_model=UserDetailSchema)
-        self.router.add_api_route("/update/", self.update_user, methods=["PATCH"], response_model=UserDetailSchema)
-        self.router.add_api_route("/delete/", self.delete_user, methods=["DELETE"])
+        self.router.add_api_route("/{id}/update/", self.update_user, methods=["PATCH"], response_model=UserDetailSchema)
+        self.router.add_api_route("/{id}/delete/", self.delete_user, methods=["DELETE"])
 
 
     async def get_users(self, page: int = 1, size: int = 10, user_service: UserService = Depends(get_user_service)):

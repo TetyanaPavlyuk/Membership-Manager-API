@@ -14,7 +14,7 @@ from app.db.models.users import UserModel
 # access to the values within the .ini file in use.
 config = context.config
 
-db_uri = session_postgresql.POSTGRES_DB_ENGINE
+db_uri = session_postgresql.POSTGRES_URL
 config.set_main_option("sqlalchemy.url", db_uri)
 
 # Interpret the config file for Python logging.

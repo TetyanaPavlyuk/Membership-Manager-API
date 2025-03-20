@@ -15,7 +15,6 @@ class UserService:
     async def get_users(self, page: int = 1, size: int = 10):
         try:
             users_count = await self.user_repository.get_users_count()
-            users_count = users_count.scalar() or 0
             pages_count = ceil(users_count / size)
             page = max(1, min(pages_count, page))
             size = max(1, size)
@@ -34,8 +33,13 @@ class UserService:
     async def get_user(self, id: int):
         try:
             db_user = await self.user_repository.get_user_by_id(id)
+            if not db_user:
+                await async_log(f"User (ID {id}) not found.")
+                raise HTTPException(status_code=404, detail=f"Not found user {id}.")
             await async_log(f"Getting user (ID {id}) was successful.")
             return db_user
+        except HTTPException as httpe:
+            raise httpe
         except Exception as e:
             await async_log(f"Failed to get user (ID {id}): {e}")
             raise HTTPException(status_code=404, detail=f"Failed to get user {id}: {e}")
@@ -77,7 +81,8 @@ class UserService:
             db_user = await self.user_repository.save_user(db_user)
             await async_log(f"Updating user {db_user.email} (ID {db_user.id}) was successful.")
             return db_user
-
+        except HTTPException as httpe:
+            raise httpe
         except Exception as e:
             await async_log(f"Failed to update user: {e}")
             raise HTTPException(status_code=400, detail=f"Failed to update user: {e}")
@@ -94,6 +99,8 @@ class UserService:
             deleted_user = await self.user_repository.delete_user(db_user)
             await async_log(f"User {deleted_user.email} (ID {id}) has been deleted.")
             return {"message": f"User {deleted_user.email} (ID {id}) has been deleted."}
+        except HTTPException as httpe:
+            raise httpe
         except Exception as e:
             await async_log(f"Failed to delete user: {e}")
             raise HTTPException(status_code=400, detail=f"Failed to delete user: {e}")

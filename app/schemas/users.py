@@ -1,20 +1,18 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import List, Optional
 
 
 class UserBaseSchema(BaseModel):
-    email: EmailStr
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes: True
+    email: EmailStr
 
 
 class UserSignInSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     email: EmailStr
     password: str
-
-    class Config:
-        from_attributes: True
 
 
 class UserSignUpSchema(UserBaseSchema):
@@ -26,14 +24,13 @@ class UserUpdateSchema(UserBaseSchema):
 
 
 class UserListSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     prev_page: Optional[str]
     next_page: Optional[str]
     pages_count: int
     users_count: int
     users: List[UserBaseSchema]
-
-    class Config:
-        from_attributes: True
 
 
 class UserDetailSchema(UserBaseSchema):
