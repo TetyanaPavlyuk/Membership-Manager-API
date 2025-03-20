@@ -7,24 +7,25 @@ from app.db.models.users import UserModel
 from app.utils.logger import async_log
 
 
-
 class UserRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-
     async def get_users_count(self):
         try:
-            users_count = await self.db.execute(select(func.count()).select_from(UserModel))
+            users_count = await self.db.execute(
+                select(func.count()).select_from(UserModel)
+            )
             return users_count.scalar() or 0
         except SQLAlchemyError as e:
             await async_log(f"Failed to get users count from DB: {e}")
             raise
 
-
     async def get_users(self, offset: int, limit: int):
         try:
-            result = await self.db.execute(select(UserModel).offset(offset - 1).limit(limit))
+            result = await self.db.execute(
+                select(UserModel).offset(offset - 1).limit(limit)
+            )
             users = result.scalars().all()
             return users
         except SQLAlchemyError as e:
@@ -32,7 +33,6 @@ class UserRepository:
             raise
         except Exception:
             raise
-
 
     async def get_user_by_id(self, id: int):
         try:
@@ -44,17 +44,17 @@ class UserRepository:
         except Exception:
             raise
 
-
     async def get_user_by_email(self, email: str):
         try:
-            result = await self.db.execute(select(UserModel).filter(UserModel.email == email))
+            result = await self.db.execute(
+                select(UserModel).filter(UserModel.email == email)
+            )
             return result.scalars().first()
         except SQLAlchemyError as e:
             await async_log(f"Failed to get user with email {email} from DB: {e}")
             raise
         except Exception:
             raise
-
 
     async def save_user(self, user: UserModel):
         try:
@@ -67,7 +67,6 @@ class UserRepository:
             raise
         except Exception:
             raise
-
 
     async def delete_user(self, user: UserModel):
         try:

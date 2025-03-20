@@ -3,12 +3,14 @@ import pytest
 from app.db.models.users import UserModel
 from app.repository.users import UserRepository
 
+
 @pytest.fixture
 def users_data():
     return [
         {"email": "test1@mail.com", "hashed_password": "test12345"},
-        {"email": "test2@mail.com", "hashed_password": "test12345"}
+        {"email": "test2@mail.com", "hashed_password": "test12345"},
     ]
+
 
 @pytest.fixture
 async def user_repository(get_test_db):

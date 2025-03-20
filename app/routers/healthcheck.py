@@ -29,8 +29,9 @@ class HealthCheckRouter:
             return {"message": "Postgres is connected", "result": result}
         except SQLAlchemyError as e:
             await async_log(f"PostgreSQL connection failed: {e}")
-            raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
-
+            raise HTTPException(
+                status_code=500, detail=f"Database connection failed: {e}"
+            )
 
     async def check_redis(self):
         try:

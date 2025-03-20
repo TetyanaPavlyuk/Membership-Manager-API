@@ -13,8 +13,8 @@ from app.services.users import UserService
 @pytest.mark.asyncio
 async def test_create_user_success():
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_email.return_value=None
-    mock_repository.save_user=AsyncMock(side_effect=lambda user: user)
+    mock_repository.get_user_by_email.return_value = None
+    mock_repository.save_user = AsyncMock(side_effect=lambda user: user)
 
     user_service = UserService(mock_repository)
 
@@ -32,8 +32,12 @@ async def test_create_user_success():
 @pytest.mark.asyncio
 async def test_create_user_already_exist():
     mock_repository = AsyncMock()
-    user_model_data = {"id": 1, "email": "test@mail.com", "hashed_password": "hashed_pass"}
-    mock_repository.get_user_by_email.return_value=UserModel(**user_model_data)
+    user_model_data = {
+        "id": 1,
+        "email": "test@mail.com",
+        "hashed_password": "hashed_pass",
+    }
+    mock_repository.get_user_by_email.return_value = UserModel(**user_model_data)
 
     user_service = UserService(mock_repository)
     user_sign_up_data = {"email": "test@mail.com", "password": "test12345"}
@@ -43,7 +47,7 @@ async def test_create_user_already_exist():
         with pytest.raises(HTTPException) as exc:
             await user_service.create_user(test_user)
 
-    assert exc.value.status_code==400
+    assert exc.value.status_code == 400
     assert "already registered" in exc.value.detail
     mock_repository.save_user.assert_not_called()
 
@@ -51,8 +55,8 @@ async def test_create_user_already_exist():
 @pytest.mark.asyncio
 async def test_create_user_exception():
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_email.return_value=None
-    mock_repository.save_user=Exception("DB Error")
+    mock_repository.get_user_by_email.return_value = None
+    mock_repository.save_user = Exception("DB Error")
     user_service = UserService(mock_repository)
     user_sign_up_data = {"email": "test@mail.com", "password": "test12345"}
     test_user = UserSignUpSchema(**user_sign_up_data)
@@ -61,7 +65,7 @@ async def test_create_user_exception():
         with pytest.raises(HTTPException) as exc:
             await user_service.create_user(test_user)
 
-    assert exc.value.status_code==400
+    assert exc.value.status_code == 400
     assert "Failed" in exc.value.detail
 
 
@@ -69,12 +73,12 @@ async def test_create_user_exception():
 async def test_get_users_success():
     users_data = [
         {"email": "test1@mail.com", "hashed_password": "hashed_pass"},
-        {"email": "test2@mail.com", "hashed_password": "hashed_pass"}
+        {"email": "test2@mail.com", "hashed_password": "hashed_pass"},
     ]
     mock_repository = AsyncMock()
     users_count = 25
-    mock_repository.get_users_count.return_value=users_count
-    mock_repository.get_users.return_value=[
+    mock_repository.get_users_count.return_value = users_count
+    mock_repository.get_users.return_value = [
         UserModel(**user_data) for user_data in users_data
     ]
     user_service = UserService(mock_repository)
@@ -96,14 +100,14 @@ async def test_get_users_success():
 @pytest.mark.asyncio
 async def test_get_users_exception():
     mock_repository = AsyncMock()
-    mock_repository.get_users_count.side_effect=Exception("DB Error")
+    mock_repository.get_users_count.side_effect = Exception("DB Error")
     user_service = UserService(mock_repository)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         with pytest.raises(HTTPException) as exc:
             await user_service.get_users(page=1, size=2)
 
-    assert exc.value.status_code==404
+    assert exc.value.status_code == 404
     assert "Failed" in exc.value.detail
 
 
@@ -125,7 +129,7 @@ async def test_get_user_success():
 @pytest.mark.asyncio
 async def test_get_user_not_found():
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_id.return_value=None
+    mock_repository.get_user_by_id.return_value = None
     user_service = UserService(mock_repository)
     user_id = 5
 
@@ -141,7 +145,7 @@ async def test_get_user_not_found():
 @pytest.mark.asyncio
 async def test_get_user_exception():
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_id.side_effect=Exception("DB Error.")
+    mock_repository.get_user_by_id.side_effect = Exception("DB Error.")
     user_service = UserService(mock_repository)
     user_id = 1
 
@@ -156,11 +160,15 @@ async def test_get_user_exception():
 
 @pytest.mark.asyncio
 async def test_update_user_success():
-    user_model_data = {"id": 1, "email": "test@mail.com", "hashed_password": "test12345"}
+    user_model_data = {
+        "id": 1,
+        "email": "test@mail.com",
+        "hashed_password": "test12345",
+    }
     user_model = UserModel(**user_model_data)
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_id.return_value=user_model
-    mock_repository.save_user=AsyncMock(side_effect=lambda user: user)
+    mock_repository.get_user_by_id.return_value = user_model
+    mock_repository.save_user = AsyncMock(side_effect=lambda user: user)
 
     user_service = UserService(mock_repository)
 
@@ -178,7 +186,7 @@ async def test_update_user_success():
 @pytest.mark.asyncio
 async def test_update_user_not_found():
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_id.return_value=None
+    mock_repository.get_user_by_id.return_value = None
 
     user_service = UserService(mock_repository)
     user_update_data = {"email": "new@mail.com"}
@@ -188,7 +196,7 @@ async def test_update_user_not_found():
         with pytest.raises(HTTPException) as exc:
             await user_service.update_user(2, update_user)
 
-    assert exc.value.status_code==404
+    assert exc.value.status_code == 404
     assert "not registered" in exc.value.detail
     mock_repository.save_user.assert_not_called()
 
@@ -196,7 +204,7 @@ async def test_update_user_not_found():
 @pytest.mark.asyncio
 async def test_update_user_exception():
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_id.side_effect=Exception("DB Error.")
+    mock_repository.get_user_by_id.side_effect = Exception("DB Error.")
     user_service = UserService(mock_repository)
     user_update_data = {"email": "new@mail.com"}
     update_user = UserUpdateSchema(**user_update_data)
@@ -214,18 +222,25 @@ async def test_update_user_exception():
 
 @pytest.mark.asyncio
 async def test_delete_user_success():
-    user_model_data = {"id": 1, "email": "test@mail.com", "hashed_password": "test12345"}
+    user_model_data = {
+        "id": 1,
+        "email": "test@mail.com",
+        "hashed_password": "test12345",
+    }
     user_model = UserModel(**user_model_data)
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_id.return_value=user_model
-    mock_repository.delete_user.return_value=user_model
+    mock_repository.get_user_by_id.return_value = user_model
+    mock_repository.delete_user.return_value = user_model
 
     user_service = UserService(mock_repository)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         response = await user_service.delete_user(user_model_data["id"])
 
-    assert response["message"] == f"User {user_model_data['email']} (ID {user_model_data['id']}) has been deleted."
+    assert (
+        response["message"]
+        == f"User {user_model_data['email']} (ID {user_model_data['id']}) has been deleted."
+    )
     mock_repository.get_user_by_id.assert_called_once_with(user_model_data["id"])
     mock_repository.delete_user.assert_called_once_with(user_model)
 
@@ -233,7 +248,7 @@ async def test_delete_user_success():
 @pytest.mark.asyncio
 async def test_delete_user_not_found():
     mock_repository = AsyncMock()
-    mock_repository.get_user_by_id.return_value=None
+    mock_repository.get_user_by_id.return_value = None
     user_id = 1
 
     user_service = UserService(mock_repository)

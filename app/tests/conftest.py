@@ -43,15 +43,18 @@ async def setup_test_db():
         await conn.execute(text(f"CREATE DATABASE {settings.TEST_DB}"))
     # create test tables
     async with test_engine.begin() as conn:
-         await conn.run_sync(UserModel.metadata.create_all)
+        await conn.run_sync(UserModel.metadata.create_all)
     yield
     # drop all tables and delete test DB
     async with test_engine.begin() as conn:
         await conn.run_sync(UserModel.metadata.drop_all)
     async with engine.connect() as conn:
         conn = await conn.execution_options(isolation_level="AUTOCOMMIT")
-        await conn.execute(text(
-            f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{settings.TEST_DB}' AND pid <> pg_backend_pid();"))
+        await conn.execute(
+            text(
+                f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{settings.TEST_DB}' AND pid <> pg_backend_pid();"
+            )
+        )
         await conn.execute(text(f"DROP DATABASE IF EXISTS {settings.TEST_DB}"))
 
 
@@ -78,7 +81,9 @@ async def test_client():
 
     server.app.dependency_overrides[get_async_db()] = override_get_db
 
-    async with AsyncClient(transport=ASGITransport(app=server.app), base_url="http://") as cl:
+    async with AsyncClient(
+        transport=ASGITransport(app=server.app), base_url="http://"
+    ) as cl:
         yield cl
 
     server.app.dependency_overrides.clear()

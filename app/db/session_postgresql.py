@@ -13,6 +13,7 @@ AsyncSessionLocal = sessionmaker(
     bind=engine, class_=AsyncSession, expire_on_commit=False
 )
 
+
 async def get_async_db():
     async with AsyncSessionLocal() as session:
         await async_log("Connecting to database")

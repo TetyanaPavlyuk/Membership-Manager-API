@@ -21,19 +21,22 @@ class Settings(BaseSettings):
 
     @property
     def POSTGRES_URL(self) -> str:
-        return (f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
-                f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}")
+        return (
+            f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
 
     @property
     def TEST_DB_URL(self) -> str:
-        return (f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
-                f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.TEST_DB}")
+        return (
+            f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
+            f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.TEST_DB}"
+        )
 
     # Redis
     REDIS_HOST: str = "redis_db"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
-
 
     model_config = SettingsConfigDict(env_file=".env")
 
