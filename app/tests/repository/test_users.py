@@ -36,7 +36,7 @@ async def test_get_users_count(user_repository, users_data):
 
 @pytest.mark.asyncio(loop_scope="session")
 async def test_get_users(user_repository, users_data):
-    users_list = await user_repository.get_users(1, 10)
+    users_list = await user_repository.get_users(0, 10)
     assert [user.email for user in users_list] == [
         user_data["email"] for user_data in users_data
     ]

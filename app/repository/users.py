@@ -5,6 +5,7 @@ from sqlalchemy.sql import func
 
 from app.db.models.users import UserModel
 from app.utils.logger import async_log
+from app.exceptions import DatabaseError
 
 
 class UserRepository:
@@ -19,42 +20,33 @@ class UserRepository:
             return users_count.scalar() or 0
         except SQLAlchemyError as e:
             await async_log(f"Failed to get users count from DB: {e}")
-            raise
+            raise DatabaseError(e)
 
     async def get_users(self, offset: int, limit: int):
         try:
-            result = await self.db.execute(
-                select(UserModel).offset(offset - 1).limit(limit)
+            result = await self.db.scalars(
+                select(UserModel).offset(offset).limit(limit)
             )
-            users = result.scalars().all()
-            return users
+            return result.all()
         except SQLAlchemyError as e:
             await async_log(f"Failed to get users list from DB: {e}")
-            raise
-        except Exception:
-            raise
+            raise DatabaseError(e)
 
     async def get_user_by_id(self, id: int):
         try:
-            result = await self.db.execute(select(UserModel).where(UserModel.id == id))
-            return result.scalars().first()
+            return await self.db.get(UserModel, id)
         except SQLAlchemyError as e:
             await async_log(f"Failed to get user (ID {id}) from DB: {e}")
-            raise
-        except Exception:
-            raise
+            raise DatabaseError(e)
 
     async def get_user_by_email(self, email: str):
         try:
-            result = await self.db.execute(
+            return await self.db.scalar(
                 select(UserModel).filter(UserModel.email == email)
             )
-            return result.scalars().first()
         except SQLAlchemyError as e:
             await async_log(f"Failed to get user with email {email} from DB: {e}")
-            raise
-        except Exception:
-            raise
+            raise DatabaseError(e)
 
     async def save_user(self, user: UserModel):
         try:
@@ -64,9 +56,7 @@ class UserRepository:
             return user
         except SQLAlchemyError as e:
             await async_log(f"DB error while saving user {user.email}: {e}")
-            raise
-        except Exception:
-            raise
+            raise DatabaseError(e)
 
     async def delete_user(self, user: UserModel):
         try:
@@ -76,6 +66,4 @@ class UserRepository:
             return user
         except SQLAlchemyError as e:
             await async_log(f"Failed to delete user (ID {user.id}) from DB.: {e}")
-            raise
-        except Exception:
-            raise
+            raise DatabaseError(e)

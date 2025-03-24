@@ -14,11 +14,7 @@ from app.main import server
 from app.dependencies.users import get_async_db
 
 
-test_engine = create_async_engine(settings.TEST_DB_URL, future=True, echo=True)
-
-TestSessionLocal = sessionmaker(
-    bind=test_engine, class_=AsyncSession, expire_on_commit=False
-)
+TEST_DB: str = "test_db"
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -34,13 +30,26 @@ async def set_testing_env():
     settings.ENVIRONMENT = origin_env
 
 
+@pytest_asyncio.fixture(scope="session")
+def test_db_url() -> str:
+    return (
+        f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}"
+        f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{TEST_DB}"
+    )
+
+
+@pytest_asyncio.fixture(scope="session")
+async def test_engine(test_db_url):
+    return create_async_engine(test_db_url, future=True, echo=True)
+
+
 @pytest_asyncio.fixture(scope="session", autouse=True)
-async def setup_test_db():
+async def setup_test_db(test_engine):
     # create test DB
     async with engine.connect() as conn:
         conn = await conn.execution_options(isolation_level="AUTOCOMMIT")
-        await conn.execute(text(f"DROP DATABASE IF EXISTS {settings.TEST_DB}"))
-        await conn.execute(text(f"CREATE DATABASE {settings.TEST_DB}"))
+        await conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DB}"))
+        await conn.execute(text(f"CREATE DATABASE {TEST_DB}"))
     # create test tables
     async with test_engine.begin() as conn:
         await conn.run_sync(UserModel.metadata.create_all)
@@ -52,15 +61,18 @@ async def setup_test_db():
         conn = await conn.execution_options(isolation_level="AUTOCOMMIT")
         await conn.execute(
             text(
-                f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{settings.TEST_DB}' AND pid <> pg_backend_pid();"
+                f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{TEST_DB}' AND pid <> pg_backend_pid();"
             )
         )
-        await conn.execute(text(f"DROP DATABASE IF EXISTS {settings.TEST_DB}"))
+        await conn.execute(text(f"DROP DATABASE IF EXISTS {TEST_DB}"))
 
 
 @pytest_asyncio.fixture()
-async def get_test_db() -> AsyncSession:
-    async with TestSessionLocal() as session:
+async def get_test_db(test_engine) -> AsyncSession:
+    test_session_local = sessionmaker(
+        bind=test_engine, class_=AsyncSession, expire_on_commit=False
+    )
+    async with test_session_local() as session:
         yield session
 
 
