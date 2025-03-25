@@ -16,7 +16,9 @@ dependencies = [
     "sqlalchemy (>=2.0.38,<3.0.0)",
     "asyncpg (>=0.30.0,<0.31.0)",
     "alembic (>=1.15.1,<2.0.0)",
-    "passlib[bcrypt] (>=1.7.4,<2.0.0)",
+    "pydantic[email] (>=2.10.6,<3.0.0)",
+    "aiosqlite (>=0.21.0,<0.22.0)",
+    "passlib (>=1.7.4,<2.0.0)",
 ]
 
 
@@ -28,4 +30,5 @@ build-backend = "poetry.core.masonry.api"
 pytest = "^8.3.4"
 httpx = "^0.28.1"
 black = "^25.1.0"
+pytest-asyncio = "^0.25.3"
 

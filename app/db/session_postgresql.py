@@ -5,17 +5,16 @@ from app.utils.logger import async_log
 from app.config.settings import settings
 
 
-POSTGRES_DB_ENGINE = settings.POSTGRES_URL
+POSTGRES_URL = settings.POSTGRES_URL
 
-engine = create_async_engine(POSTGRES_DB_ENGINE)
-
+engine = create_async_engine(POSTGRES_URL)
 
 AsyncSessionLocal = sessionmaker(
     bind=engine, class_=AsyncSession, expire_on_commit=False
 )
 
 
-async def get_db():
+async def get_async_db():
     async with AsyncSessionLocal() as session:
         await async_log("Connecting to database")
         yield session

@@ -38,7 +38,14 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: backend-container
-    restart: always
+    restart: no
+    command: >
+      sh -c "
+            /app/commands/makemigrations.sh &&
+            /app/commands/migrate.sh &&
+            /app/commands/run_tests.sh &&
+            /app/commands/run_server.sh"
+
     env_file:
       - .env
     ports:

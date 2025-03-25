@@ -1,44 +1,40 @@
-from pydantic import BaseModel, Field, EmailStr
-from typing import List, Optional
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from typing import List
 
 
-class UserBase(BaseModel):
+class UserBaseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     email: EmailStr
 
-    class Config:
-        from_attributes: True
 
+class UserSignInSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-class UserSignIn(BaseModel):
     email: EmailStr
     password: str
 
 
-class UserSignUp(UserBase):
+class UserSignUpSchema(UserBaseSchema):
     password: str
 
-    class Config:
-        from_attributes: True
+
+class UserUpdateSchema(UserBaseSchema):
+    full_name: str | None = Field(None, max_length=255)
 
 
-class UserUpdate(UserBase):
-    password: Optional[str] = None
-    full_name: Optional[str] = Field(None, max_length=255)
+class UserListSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes: True
-
-
-class UserList(BaseModel):
-    users: List[UserBase]
+    prev_page: str | None
+    next_page: str | None
+    pages_count: int
+    users_count: int
+    users: List[UserBaseSchema]
 
 
-class UserDetail(UserBase):
+class UserDetailSchema(UserBaseSchema):
     id: int
     is_active: bool
     is_superuser: bool
-    full_name: Optional[str]
-
-    class Config:
-        from_attributes: True
-
+    full_name: str | None
