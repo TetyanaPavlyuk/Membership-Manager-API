@@ -5,7 +5,7 @@ from sqlalchemy.sql import func
 
 from app.db.models.users import UserModel
 from app.utils.logger import async_log
-from app.exceptions import DatabaseError
+from app.exceptions.exceptions import DatabaseError
 
 
 class UserRepository:

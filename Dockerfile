@@ -26,10 +26,9 @@ RUN poetry install --no-root
 
 # copy the source code
 COPY ./app /app/app
-COPY ./alembic /app/alembic
 COPY ./commands /app/commands
-COPY ./alembic.ini /app/
-COPY ./pytest.ini /app/
+COPY ./alembic /app/alembic
+COPY ./alembic.ini ./pytest.ini /app/
 
 # Add execute bit to commands files
 RUN chmod +x /app/commands/*.sh

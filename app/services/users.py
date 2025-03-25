@@ -11,7 +11,7 @@ from app.schemas.users import (
 from app.core.security import hash_password
 from app.utils.logger import async_log
 from app.repository.users import UserRepository
-from app.exceptions import (
+from app.exceptions.exceptions import (
     ItemsListException,
     ItemNotFoundException,
     ItemDetailException,

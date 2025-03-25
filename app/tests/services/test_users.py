@@ -13,7 +13,7 @@ from app.schemas.users import (
     UserListSchema,
 )
 from app.services.users import UserService
-from app.exceptions import (
+from app.exceptions.exceptions import (
     ItemCreateException,
     ItemDetailException,
     ItemsListException,

@@ -12,7 +12,7 @@ from app.db.session_postgresql import engine
 from app.db.models.users import UserModel
 from app.main import server
 from app.dependencies.users import get_async_db
-
+from app.repository.users import UserRepository
 
 TEST_DB: str = "test_db"
 
@@ -99,3 +99,16 @@ async def test_client():
         yield cl
 
     server.app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture
+async def user_repository(get_test_db):
+    return UserRepository(get_test_db)
+
+
+@pytest_asyncio.fixture
+def users_create_data():
+    return [
+        {"email": "test1@mail.com", "hashed_password": "test12345"},
+        {"email": "test2@mail.com", "hashed_password": "test12345"},
+    ]
