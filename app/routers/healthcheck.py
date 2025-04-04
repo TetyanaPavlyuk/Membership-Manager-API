@@ -12,7 +12,7 @@ from app.utils.logger import async_log
 healthcheck_router = APIRouter()
 
 
-@healthcheck_router.get("/")
+@healthcheck_router.get("/check-health")
 async def root():
     await async_log("Root endpoint accessed.")
     return {"status_code": status.HTTP_200_OK, "detail": "ok", "result": "working"}

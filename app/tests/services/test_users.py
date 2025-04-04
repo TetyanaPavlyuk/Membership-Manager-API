@@ -5,8 +5,8 @@ from fastapi import status
 
 from app.core.security import hash_password
 from app.db.models.users import UserModel
+from app.schemas.auth import RegisterSchema
 from app.schemas.users import (
-    UserSignUpSchema,
     UserUpdateSchema,
     UserDetailSchema,
     UserBaseSchema,
@@ -30,7 +30,9 @@ async def test_create_user_success():
 
     user_service = UserService(mock_repository)
 
-    user_data = UserSignUpSchema(email="test@mail.com", password="test12345")
+    user_data = RegisterSchema(
+        email="test@mail.com", password="test12345", full_name="Test Name"
+    )
     hashed_password = hash_password(user_data.password)
     saved_user = UserModel(
         id=1,
@@ -38,7 +40,7 @@ async def test_create_user_success():
         hashed_password=hashed_password,
         is_superuser=False,
         is_active=True,
-        full_name=None,
+        full_name=user_data.full_name,
     )
 
     mock_repository.get_user_by_email.return_value = None
@@ -53,6 +55,7 @@ async def test_create_user_success():
     assert isinstance(db_user, UserDetailSchema)
     assert db_user.id == saved_user.id
     assert db_user.email == user_data.email
+    assert db_user.full_name == user_data.full_name
     mock_hash_password.assert_called_once_with(user_data.password)
     mock_repository.get_user_by_email.assert_called_once_with(user_data.email)
     mock_repository.save_user.assert_called_once()
@@ -72,8 +75,12 @@ async def test_create_user_already_exist():
     mock_repository.get_user_by_email.return_value = UserModel(**user_model_data)
 
     user_service = UserService(mock_repository)
-    user_sign_up_data = {"email": "test@mail.com", "password": "test12345"}
-    test_user = UserSignUpSchema(**user_sign_up_data)
+    user_sign_up_data = {
+        "email": "test@mail.com",
+        "password": "test12345",
+        "full_name": None,
+    }
+    test_user = RegisterSchema(**user_sign_up_data)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         with pytest.raises(ItemAlreadyExistException) as exc:
@@ -90,8 +97,12 @@ async def test_create_user_exception():
     mock_repository.get_user_by_email.return_value = None
     mock_repository.save_user = Exception("DB Error")
     user_service = UserService(mock_repository)
-    user_sign_up_data = {"email": "test@mail.com", "password": "test12345"}
-    test_user = UserSignUpSchema(**user_sign_up_data)
+    user_sign_up_data = {
+        "email": "test@mail.com",
+        "password": "test12345",
+        "full_name": None,
+    }
+    test_user = RegisterSchema(**user_sign_up_data)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         with pytest.raises(ItemCreateException) as exc:

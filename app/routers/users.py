@@ -3,11 +3,10 @@ from fastapi.responses import JSONResponse
 
 from app.dependencies.users import get_user_service
 from app.services.users import UserService
+from app.schemas.auth import RegisterSchema
 from app.schemas.users import (
-    UserBaseSchema,
     UserListSchema,
     UserDetailSchema,
-    UserSignUpSchema,
     UserUpdateSchema,
 )
 
@@ -33,7 +32,7 @@ async def get_user(
 
 @user_router.post("/", response_model=UserDetailSchema)
 async def create_user(
-    user: UserSignUpSchema,
+    user: RegisterSchema,
     user_service: UserService = Depends(get_user_service),
 ) -> UserDetailSchema:
     return await user_service.create_user(user)

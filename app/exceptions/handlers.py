@@ -9,6 +9,16 @@ from app.exceptions.exceptions import (
     ItemCreateException,
     ItemUpdateException,
     ItemDeleteException,
+    ItemException,
+    ExpiredTokenException,
+    InvalidTokenException,
+    UnauthorizedException,
+    RegisterException,
+    LoginException,
+    LogoutException,
+    ResetException,
+    InvalidTokenFormatException,
+    GetCurrentUserException,
 )
 
 
@@ -53,6 +63,68 @@ def add_exception_handlers(app: FastAPI):
 
     @app.exception_handler(ItemDeleteException)
     async def item_delete_exception_handler(request, exc: ItemDeleteException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(ItemException)
+    async def item_exception_handler(request, exc: ItemException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(ExpiredTokenException)
+    async def expired_token_exception_handler(request, exc: ExpiredTokenException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(InvalidTokenException)
+    async def invalid_token_exception_handler(request, exc: InvalidTokenException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(UnauthorizedException)
+    async def unauthorized_exception_handler(request, exc: UnauthorizedException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(RegisterException)
+    async def register_exception_handler(request, exc: RegisterException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(LoginException)
+    async def login_exception_handler(request, exc: LoginException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(LogoutException)
+    async def logout_exception_handler(request, exc: LogoutException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(ResetException)
+    async def reset_exception_handler(request, exc: ResetException):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(InvalidTokenFormatException)
+    async def invalid_token_format_exception_handler(
+        request, exc: InvalidTokenFormatException
+    ):
+        return JSONResponse(
+            status_code=exc.status_code, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(GetCurrentUserException)
+    async def get_current_user_exception_handler(request, exc: GetCurrentUserException):
         return JSONResponse(
             status_code=exc.status_code, content={"detail": exc.message}
         )
