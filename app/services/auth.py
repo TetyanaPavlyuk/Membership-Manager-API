@@ -80,6 +80,17 @@ class AuthService:
         signing_key = jwks_client.get_signing_key_from_jwt(auth0_token)
         return signing_key
 
+    @staticmethod
+    async def _handle_token_exception(e: Exception):
+        if isinstance(e, ExpiredTokenException):
+            await async_log(f"Token expiration error: {e}")
+            raise e
+        if isinstance(e, InvalidTokenException):
+            await async_log(f"Failed to decode token: {e}")
+            raise e
+        await async_log(f"Failed to get current user data: {e}")
+        raise GetCurrentUserException
+
     async def verify_auth0_token(self, auth0_token: str) -> dict:
         try:
             public_key = await self.get_auth0_public_key(auth0_token)
@@ -148,21 +159,7 @@ class AuthService:
                     email
                 )
                 return UserDetailSchema.model_validate(db_user)
-            except ExpiredTokenException as e:
-                await async_log(f"Token expiration error: {e}")
-                raise
-            except InvalidTokenException as e:
-                await async_log(f"Failed to decode token: {e}")
-                raise
             except Exception as e:
-                await async_log(f"Failed to get current user data: {e}")
-                raise GetCurrentUserException(e)
-        except ExpiredTokenException as e:
-            await async_log(f"Token expiration error: {e}")
-            raise
-        except InvalidTokenException as e:
-            await async_log(f"Failed to decode token: {e}")
-            raise
+                await self._handle_token_exception(e)
         except Exception as e:
-            await async_log(f"Failed to get current user data from auth0: {e}")
-            raise GetCurrentUserException(e)
+            await self._handle_token_exception(e)
