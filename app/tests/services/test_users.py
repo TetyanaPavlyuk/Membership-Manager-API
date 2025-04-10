@@ -5,7 +5,7 @@ from fastapi import status
 
 from app.core.security import hash_password
 from app.db.models.users import UserModel
-from app.schemas.auth import RegisterSchema
+from app.schemas.auth import RegistrationSchema
 from app.schemas.users import (
     UserUpdateSchema,
     UserDetailSchema,
@@ -30,12 +30,12 @@ async def test_create_user_success():
 
     user_service = UserService(mock_repository)
 
-    user_data = RegisterSchema(
+    user_data = RegistrationSchema(
         email="test@mail.com", password="test12345", full_name="Test Name"
     )
     hashed_password = hash_password(user_data.password)
     saved_user = UserModel(
-        id=1,
+        id="3f50c3aa-7d24-4ef2-94e9-64e2e904f472",
         email=user_data.email,
         hashed_password=hashed_password,
         is_superuser=False,
@@ -80,7 +80,7 @@ async def test_create_user_already_exist():
         "password": "test12345",
         "full_name": None,
     }
-    test_user = RegisterSchema(**user_sign_up_data)
+    test_user = RegistrationSchema(**user_sign_up_data)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         with pytest.raises(ItemAlreadyExistException) as exc:
@@ -102,7 +102,7 @@ async def test_create_user_exception():
         "password": "test12345",
         "full_name": None,
     }
-    test_user = RegisterSchema(**user_sign_up_data)
+    test_user = RegistrationSchema(**user_sign_up_data)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         with pytest.raises(ItemCreateException) as exc:
@@ -162,7 +162,7 @@ async def test_get_users_exception():
 async def test_get_user_success():
     mock_repository = AsyncMock()
     user_data = {
-        "id": 1,
+        "id": "3f50c3aa-7d24-4ef2-94e9-64e2e904f472",
         "email": "test@mail.com",
         "hashed_password": "test12345",
         "is_active": True,
@@ -215,7 +215,7 @@ async def test_get_user_exception():
 @pytest.mark.asyncio
 async def test_update_user_success():
     user_model_data = {
-        "id": 1,
+        "id": "3f50c3aa-7d24-4ef2-94e9-64e2e904f472",
         "email": "test@mail.com",
         "hashed_password": "test12345",
         "is_active": True,

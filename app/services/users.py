@@ -1,7 +1,7 @@
 from math import ceil
 
 from app.db.models.users import UserModel
-from app.schemas.auth import RegisterSchema
+from app.schemas.auth import RegistrationSchema
 from app.schemas.users import (
     UserUpdateSchema,
     UserListSchema,
@@ -53,7 +53,7 @@ class UserService:
             await async_log(f"Failed to get users list: {e}")
             raise ItemsListException("Users", e)
 
-    async def get_user(self, id: int) -> UserDetailSchema:
+    async def get_user(self, id: str) -> UserDetailSchema:
         try:
             db_user = await self.user_repository.get_user_by_id(id)
             if not db_user:
@@ -67,7 +67,7 @@ class UserService:
             await async_log(f"Failed to get user (ID {id}): {e}")
             raise ItemDetailException("User", id, e)
 
-    async def create_user(self, user: RegisterSchema) -> UserDetailSchema:
+    async def create_user(self, user: RegistrationSchema) -> UserDetailSchema:
         try:
             hashed_password = hash_password(user.password)
             created_user = UserModel(
@@ -98,7 +98,7 @@ class UserService:
             raise ItemCreateException("User", e)
 
     async def update_user(
-        self, id: int, update_data: UserUpdateSchema
+        self, id: str, update_data: UserUpdateSchema
     ) -> UserDetailSchema:
         try:
             db_user = await self.user_repository.get_user_by_id(id)
@@ -121,7 +121,7 @@ class UserService:
             await async_log(f"Failed to update user: {e}")
             raise ItemUpdateException("User", id, e)
 
-    async def delete_user(self, id: int):
+    async def delete_user(self, id: str):
         try:
             db_user = await self.user_repository.get_user_by_id(id)
 

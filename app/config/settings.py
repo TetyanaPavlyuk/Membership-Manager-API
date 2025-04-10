@@ -32,14 +32,10 @@ class Settings(BaseSettings):
 
     # Authentication
     ACCESS_TOKEN_SECRET_KEY: str
-    REFRESH_TOKEN_SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 14
 
     AUTH0_DOMAIN: str
-    AUTH0_CLIENT_ID: str
-    AUTH0_CLIENT_SECRET: str
     AUTH0_AUDIENCE: str
     AUTH0_ALGORITHM: str = "RS256"
 

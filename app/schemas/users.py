@@ -21,7 +21,7 @@ class UserListSchema(BaseModel):
 
 
 class UserDetailSchema(UserBaseSchema):
-    id: int
+    id: str
     is_active: bool
     is_superuser: bool
     full_name: str | None

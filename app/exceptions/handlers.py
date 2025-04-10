@@ -15,8 +15,6 @@ from app.exceptions.exceptions import (
     UnauthorizedException,
     RegisterException,
     LoginException,
-    LogoutException,
-    ResetException,
     InvalidTokenFormatException,
     GetCurrentUserException,
 )
@@ -99,18 +97,6 @@ def add_exception_handlers(app: FastAPI):
 
     @app.exception_handler(LoginException)
     async def login_exception_handler(request, exc: LoginException):
-        return JSONResponse(
-            status_code=exc.status_code, content={"detail": exc.message}
-        )
-
-    @app.exception_handler(LogoutException)
-    async def logout_exception_handler(request, exc: LogoutException):
-        return JSONResponse(
-            status_code=exc.status_code, content={"detail": exc.message}
-        )
-
-    @app.exception_handler(ResetException)
-    async def reset_exception_handler(request, exc: ResetException):
         return JSONResponse(
             status_code=exc.status_code, content={"detail": exc.message}
         )

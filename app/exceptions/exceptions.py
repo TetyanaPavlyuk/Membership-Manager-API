@@ -23,7 +23,7 @@ class ItemNotFoundException(Exception):
 
 
 class ItemDetailException(Exception):
-    def __init__(self, item_type: str, item_id: int, message):
+    def __init__(self, item_type: str, item_id: str, message):
         self.status_code = status.HTTP_400_BAD_REQUEST
         self.message = (
             f"Error retrieving details for {item_type} ID {item_id}: {message}."
@@ -48,14 +48,14 @@ class ItemCreateException(Exception):
 
 
 class ItemUpdateException(Exception):
-    def __init__(self, item_type: str, item_id: int, message):
+    def __init__(self, item_type: str, item_id: str, message):
         self.status_code = status.HTTP_400_BAD_REQUEST
         self.message = f"Failed to update {item_type} with ID ({item_id}): {message}."
         super().__init__(self.message)
 
 
 class ItemDeleteException(Exception):
-    def __init__(self, item_type: str, item_id: int, message):
+    def __init__(self, item_type: str, item_id: str, message):
         self.status_code = status.HTTP_400_BAD_REQUEST
         self.message = f"Failed to delete {item_type} with ID ({item_id}): {message}"
         super().__init__(self.message)
@@ -102,20 +102,6 @@ class LoginException(Exception):
         super().__init__(self.message)
 
 
-class LogoutException(Exception):
-    def __init__(self, message):
-        self.status_code = status.HTTP_400_BAD_REQUEST
-        self.message = f"Failed to logout: {message}."
-        super().__init__(self.message)
-
-
-class ResetException(Exception):
-    def __init__(self, message):
-        self.status_code = status.HTTP_400_BAD_REQUEST
-        self.message = f"Failed to reset token: {message}."
-        super().__init__(self.message)
-
-
 class InvalidTokenFormatException(Exception):
     def __init__(self):
         self.status_code = status.HTTP_400_BAD_REQUEST
@@ -126,5 +112,5 @@ class InvalidTokenFormatException(Exception):
 class GetCurrentUserException(Exception):
     def __init__(self, message):
         self.status_code = status.HTTP_400_BAD_REQUEST
-        self.message = f"Failed to reset token: {message}."
+        self.message = f"Failed to get current user: {message}."
         super().__init__(self.message)

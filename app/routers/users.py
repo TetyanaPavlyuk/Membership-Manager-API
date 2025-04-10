@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app.dependencies.users import get_user_service
 from app.services.users import UserService
-from app.schemas.auth import RegisterSchema
+from app.schemas.auth import RegistrationSchema
 from app.schemas.users import (
     UserListSchema,
     UserDetailSchema,
@@ -25,14 +25,14 @@ async def get_users(
 
 @user_router.get("/{id}/", response_model=UserDetailSchema)
 async def get_user(
-    id: int, user_service: UserService = Depends(get_user_service)
+    id: str, user_service: UserService = Depends(get_user_service)
 ) -> UserDetailSchema:
     return await user_service.get_user(id)
 
 
 @user_router.post("/", response_model=UserDetailSchema)
 async def create_user(
-    user: RegisterSchema,
+    user: RegistrationSchema,
     user_service: UserService = Depends(get_user_service),
 ) -> UserDetailSchema:
     return await user_service.create_user(user)
@@ -40,7 +40,7 @@ async def create_user(
 
 @user_router.patch("/{id}/update/", response_model=UserDetailSchema)
 async def update_user(
-    id: int,
+    id: str,
     update_data: UserUpdateSchema,
     user_service: UserService = Depends(get_user_service),
 ) -> UserDetailSchema:
@@ -49,7 +49,7 @@ async def update_user(
 
 @user_router.delete("/{id}/delete/")
 async def delete_user(
-    id: int, user_service: UserService = Depends(get_user_service)
+    id: str, user_service: UserService = Depends(get_user_service)
 ) -> JSONResponse:
     result = await user_service.delete_user(id)
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content=result)
