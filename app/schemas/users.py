@@ -8,24 +8,11 @@ class UserBaseSchema(BaseModel):
     email: EmailStr
 
 
-class UserSignInSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    email: EmailStr
-    password: str
-
-
-class UserSignUpSchema(UserBaseSchema):
-    password: str
-
-
 class UserUpdateSchema(UserBaseSchema):
     full_name: str | None = Field(None, max_length=255)
 
 
 class UserListSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
     prev_page: str | None
     next_page: str | None
     pages_count: int
@@ -34,7 +21,7 @@ class UserListSchema(BaseModel):
 
 
 class UserDetailSchema(UserBaseSchema):
-    id: int
+    id: str
     is_active: bool
     is_superuser: bool
     full_name: str | None

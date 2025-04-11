@@ -30,6 +30,15 @@ class Settings(BaseSettings):
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
 
+    # Authentication
+    ACCESS_TOKEN_SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+
+    AUTH0_DOMAIN: str
+    AUTH0_AUDIENCE: str
+    AUTH0_ALGORITHM: str = "RS256"
+
     model_config = SettingsConfigDict(env_file=".env")
 
 

@@ -5,6 +5,7 @@ from app.config.settings import settings
 from app.exceptions.handlers import add_exception_handlers
 from app.routers.healthcheck import healthcheck_router
 from app.routers.users import user_router
+from app.routers.auth import auth_router
 
 
 class Server:
@@ -13,6 +14,7 @@ class Server:
 
         self.app.include_router(healthcheck_router)
         self.app.include_router(user_router)
+        self.app.include_router(auth_router)
 
         origins = settings.parse_origins
         self.app.add_middleware(

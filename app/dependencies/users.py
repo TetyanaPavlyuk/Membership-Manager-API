@@ -6,6 +6,6 @@ from app.repository.users import UserRepository
 from app.services.users import UserService
 
 
-def get_user_service(db: AsyncSession = Depends(get_async_db)) -> UserService:
+async def get_user_service(db: AsyncSession = Depends(get_async_db)) -> UserService:
     user_repository = UserRepository(db)
     return UserService(user_repository)

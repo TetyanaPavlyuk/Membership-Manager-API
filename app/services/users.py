@@ -1,8 +1,8 @@
 from math import ceil
 
 from app.db.models.users import UserModel
+from app.schemas.auth import RegistrationSchema
 from app.schemas.users import (
-    UserSignUpSchema,
     UserUpdateSchema,
     UserListSchema,
     UserBaseSchema,
@@ -53,12 +53,12 @@ class UserService:
             await async_log(f"Failed to get users list: {e}")
             raise ItemsListException("Users", e)
 
-    async def get_user(self, id: int) -> UserDetailSchema:
+    async def get_user(self, id: str) -> UserDetailSchema:
         try:
             db_user = await self.user_repository.get_user_by_id(id)
             if not db_user:
                 await async_log(f"User (ID {id}) not found.")
-                raise ItemNotFoundException("User", id)
+                raise ItemNotFoundException("User")
             await async_log(f"Getting user (ID {id}) was successful.")
             return UserDetailSchema.model_validate(db_user)
         except ItemNotFoundException:
@@ -67,10 +67,14 @@ class UserService:
             await async_log(f"Failed to get user (ID {id}): {e}")
             raise ItemDetailException("User", id, e)
 
-    async def create_user(self, user: UserSignUpSchema) -> UserDetailSchema:
+    async def create_user(self, user: RegistrationSchema) -> UserDetailSchema:
         try:
             hashed_password = hash_password(user.password)
-            created_user = UserModel(email=user.email, hashed_password=hashed_password)
+            created_user = UserModel(
+                email=user.email,
+                hashed_password=hashed_password,
+                full_name=user.full_name,
+            )
 
             existing_user = await self.user_repository.get_user_by_email(user.email)
             if existing_user:
@@ -94,14 +98,14 @@ class UserService:
             raise ItemCreateException("User", e)
 
     async def update_user(
-        self, id: int, update_data: UserUpdateSchema
+        self, id: str, update_data: UserUpdateSchema
     ) -> UserDetailSchema:
         try:
             db_user = await self.user_repository.get_user_by_id(id)
 
             if not db_user:
                 await async_log("User with that id is not registered.")
-                raise ItemNotFoundException("User", id)
+                raise ItemNotFoundException("User")
 
             for key, value in update_data.model_dump(exclude_unset=True).items():
                 setattr(db_user, key, value)
@@ -117,13 +121,13 @@ class UserService:
             await async_log(f"Failed to update user: {e}")
             raise ItemUpdateException("User", id, e)
 
-    async def delete_user(self, id: int):
+    async def delete_user(self, id: str):
         try:
             db_user = await self.user_repository.get_user_by_id(id)
 
             if not db_user:
                 await async_log("User with that id is not registered.")
-                raise ItemNotFoundException("User", id)
+                raise ItemNotFoundException("User")
 
             deleted_user = await self.user_repository.delete_user(db_user)
             await async_log(f"User {deleted_user.email} (ID {id}) has been deleted.")
