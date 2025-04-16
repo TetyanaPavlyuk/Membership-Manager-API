@@ -88,10 +88,10 @@ class UnauthorizedException(Exception):
         self.message = f"No user found with this email and password"
 
 
-class RegisterException(Exception):
+class RegistrationException(Exception):
     def __init__(self, message):
         self.status_code = status.HTTP_400_BAD_REQUEST
-        self.message = f"Failed to register: {message}."
+        self.message = f"Failed to registration: {message}."
         super().__init__(self.message)
 
 
@@ -102,15 +102,14 @@ class LoginException(Exception):
         super().__init__(self.message)
 
 
-class InvalidTokenFormatException(Exception):
-    def __init__(self):
-        self.status_code = status.HTTP_400_BAD_REQUEST
-        self.message = "Invalid token format."
-        super().__init__(self.message)
-
-
 class GetCurrentUserException(Exception):
     def __init__(self, message):
         self.status_code = status.HTTP_400_BAD_REQUEST
         self.message = f"Failed to get current user: {message}."
         super().__init__(self.message)
+
+
+class ForbiddenException(Exception):
+    def __init__(self):
+        self.status_code = status.HTTP_403_FORBIDDEN
+        self.message = "You do not have permission to access this resource"

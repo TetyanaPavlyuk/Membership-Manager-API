@@ -1,3 +1,4 @@
+import string
 from unittest.mock import patch
 
 import pytest
@@ -7,7 +8,6 @@ from datetime import datetime, timedelta
 from app.exceptions.exceptions import (
     ExpiredTokenException,
     InvalidTokenException,
-    InvalidTokenFormatException,
     UnauthorizedException,
 )
 from app.schemas.auth import LoginResponseSchema
@@ -54,31 +54,17 @@ async def test_verify_access_token_invalid(test_email):
         await AuthService.verify_access_token(invalid_token)
 
 
-async def test_extract_bearer_token_success():
-    token1 = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MkBtYWlsLmNvbSIsImV4cCI6MTc0NDAwOTU0My4xMTcwNDR9.kP6mW3Vsi3ml5G5eJ7PrsAYiToeiP8JAKkzFCWpIem4"
-    token2 = "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QG1haWwuY29tIiwiZXhwIjoxNzQ0MjIwMzg2LjQ3NTM5NH0.odX0k7IIxaWWY9u0SsCXSDWVRfTro6PkwItEuNEqdiQ"
-    extract_token1 = await AuthService.extract_bearer_token(token1)
-    extract_token2 = await AuthService.extract_bearer_token(token2)
+async def test_generate_random_password_success():
+    password = await AuthService.generate_random_password()
 
-    assert (
-        extract_token1
-        == "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MkBtYWlsLmNvbSIsImV4cCI6MTc0NDAwOTU0My4xMTcwNDR9.kP6mW3Vsi3ml5G5eJ7PrsAYiToeiP8JAKkzFCWpIem4"
-    )
-    assert (
-        extract_token2
-        == "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QG1haWwuY29tIiwiZXhwIjoxNzQ0MjIwMzg2LjQ3NTM5NH0.odX0k7IIxaWWY9u0SsCXSDWVRfTro6PkwItEuNEqdiQ"
-    )
-
-
-async def test_extract_bearer_token_exception():
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MkBtYWlsLmNvbSIsImV4cCI6MTc0NDAwOTU0My4xMTcwNDR9.kP6mW3Vsi3ml5G5eJ7PrsAYiToeiP8JAKkzFCWpIem4"
-
-    with pytest.raises(InvalidTokenFormatException):
-        await AuthService.extract_bearer_token(token)
+    assert len(password) >= 8
+    assert any(let.islower() for let in password)
+    assert any(let.isupper() for let in password)
+    assert any(let.isdigit() for let in password)
+    assert any(let in string.punctuation for let in password)
 
 
 async def test_login_success(auth_service, login_data, mock_user_service):
-
     with (
         patch("app.services.auth.verify_password", return_value=True),
         patch.object(auth_service, "create_access_token", return_value="test_token"),
@@ -110,10 +96,6 @@ async def test_get_current_user_via_auth0_success(auth_service, db_user):
     auth0_token = "auth0_token"
     with (
         patch(
-            "app.services.auth.AuthService.extract_bearer_token",
-            return_value=auth0_token,
-        ),
-        patch(
             "app.services.auth.AuthService.verify_auth0_token",
             return_value={"email": db_user.email},
         ),
@@ -129,10 +111,6 @@ async def test_get_current_user_creates_new_user_via_auth0(
     auth0_token = "auth0_token"
     email = db_user.email
     with (
-        patch(
-            "app.services.auth.AuthService.extract_bearer_token",
-            return_value=auth0_token,
-        ),
         patch(
             "app.services.auth.AuthService.verify_auth0_token",
             return_value={"email": email},
@@ -151,7 +129,6 @@ async def test_get_current_user_creates_new_user_via_auth0(
 async def test_get_current_user_via_local_jwt(auth_service, db_user):
     token = "access_token"
     with (
-        patch("app.services.auth.AuthService.extract_bearer_token", return_value=token),
         patch(
             "app.services.auth.AuthService.verify_auth0_token",
             side_effect=PyJWKClientError("Auth0 decode error"),
@@ -169,7 +146,6 @@ async def test_get_current_user_via_local_jwt(auth_service, db_user):
 async def test_get_current_user_invalid_token(auth_service):
     token = "invalid_token"
     with (
-        patch("app.services.auth.AuthService.extract_bearer_token", return_value=token),
         patch(
             "app.services.auth.AuthService.verify_auth0_token",
             side_effect=PyJWKClientError("mock error"),
@@ -187,7 +163,6 @@ async def test_get_current_user_invalid_token(auth_service):
 async def test_get_current_user_expired_token(auth_service):
     token = "expired_token"
     with (
-        patch("app.services.auth.AuthService.extract_bearer_token", return_value=token),
         patch(
             "app.services.auth.AuthService.verify_auth0_token",
             side_effect=PyJWKClientError("mock error"),
