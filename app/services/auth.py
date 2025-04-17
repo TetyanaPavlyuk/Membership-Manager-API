@@ -1,5 +1,7 @@
-from secrets import token_urlsafe
+import string
+from secrets import token_urlsafe, choice
 from datetime import datetime, timedelta
+
 from jwt import (
     encode,
     decode,
@@ -11,9 +13,8 @@ from jwt import (
 
 from app.exceptions.exceptions import (
     UnauthorizedException,
-    RegisterException,
+    RegistrationException,
     LoginException,
-    InvalidTokenFormatException,
     GetCurrentUserException,
     ExpiredTokenException,
     InvalidTokenException,
@@ -21,7 +22,6 @@ from app.exceptions.exceptions import (
 )
 from app.schemas.auth import (
     RegistrationSchema,
-    RegisterResponseSchema,
     LoginSchema,
     LoginResponseSchema,
 )
@@ -67,13 +67,6 @@ class AuthService:
             raise InvalidTokenException(e)
 
     @staticmethod
-    async def extract_bearer_token(bearer_token: str) -> str:
-        if not bearer_token or not bearer_token.lower().startswith("bearer "):
-            await async_log(f"Invalid access token format")
-            raise InvalidTokenFormatException
-        return bearer_token.replace("Bearer ", "").replace("bearer ", "")
-
-    @staticmethod
     async def get_auth0_public_key(auth0_token: str) -> str:
         jwks_url = f"https://{settings.AUTH0_DOMAIN}/.well-known/jwks.json"
         jwks_client = PyJWKClient(jwks_url)
@@ -89,7 +82,18 @@ class AuthService:
             await async_log(f"Failed to decode token: {e}")
             raise e
         await async_log(f"Failed to get current user data: {e}")
-        raise GetCurrentUserException
+        raise GetCurrentUserException(e)
+
+    @staticmethod
+    async def generate_random_password():
+        random_password = token_urlsafe(16)
+        random_password += (
+            choice(string.ascii_lowercase)
+            + choice(string.ascii_uppercase)
+            + choice(string.digits)
+            + choice(string.punctuation)
+        )
+        return random_password
 
     async def verify_auth0_token(self, auth0_token: str) -> dict:
         try:
@@ -107,15 +111,13 @@ class AuthService:
         except InvalidTokenError as e:
             raise InvalidTokenException(e)
 
-    async def registration(
-        self, user_data: RegistrationSchema
-    ) -> RegisterResponseSchema:
+    async def registration(self, user_data: RegistrationSchema):
         try:
             created_user = await self.user_service.create_user(user_data)
-            return RegisterResponseSchema(user=created_user)
+            return {"message": f"Registration for {created_user.email} was successful."}
         except Exception as e:
-            await async_log(f"Failed to register: {e}")
-            raise RegisterException(e)
+            await async_log(f"Failed to registration: {e}")
+            raise RegistrationException(e)
 
     async def login(self, user_data: LoginSchema) -> LoginResponseSchema:
         try:
@@ -140,12 +142,11 @@ class AuthService:
 
     async def get_current_user(self, access_token: str) -> UserDetailSchema:
         try:
-            access_token = await self.extract_bearer_token(access_token)
             payload = await self.verify_auth0_token(access_token)
             email = payload.get("email")
             db_user = await self.user_service.user_repository.get_user_by_email(email)
             if not db_user:
-                random_password = token_urlsafe(16)
+                random_password = await self.generate_random_password()
                 user_data = RegistrationSchema(
                     email=email, password=random_password, full_name=None
                 )

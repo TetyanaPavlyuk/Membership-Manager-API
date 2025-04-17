@@ -51,7 +51,7 @@ async def test_get_user_by_email(user_repository, users_create_data):
 
 
 @pytest.mark.asyncio(loop_scope="session")
-async def test_delete_user(user_repository, clear_user_table):
+async def test_delete_user(user_repository):
     user_data = {"email": "test3@mail.com", "hashed_password": "test12345"}
     user = UserModel(**user_data)
     db_user = await user_repository.save_user(user)

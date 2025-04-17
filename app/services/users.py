@@ -39,12 +39,6 @@ class UserService:
             users_schema = [UserBaseSchema.model_validate(user) for user in users]
 
             return UserListSchema(
-                prev_page=f"/users/?page={page - 1}&size={size}" if page > 1 else None,
-                next_page=(
-                    f"/users/?page={page + 1}&size={size}"
-                    if page < pages_count
-                    else None
-                ),
                 pages_count=pages_count,
                 users_count=users_count,
                 users=users_schema,

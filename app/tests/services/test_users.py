@@ -7,7 +7,7 @@ from app.core.security import hash_password
 from app.db.models.users import UserModel
 from app.schemas.auth import RegistrationSchema
 from app.schemas.users import (
-    UserUpdateSchema,
+    UserShortSchema,
     UserDetailSchema,
     UserBaseSchema,
     UserListSchema,
@@ -31,7 +31,7 @@ async def test_create_user_success():
     user_service = UserService(mock_repository)
 
     user_data = RegistrationSchema(
-        email="test@mail.com", password="test12345", full_name="Test Name"
+        email="test@mail.com", password="Test12345?", full_name="Test Name"
     )
     hashed_password = hash_password(user_data.password)
     saved_user = UserModel(
@@ -77,7 +77,7 @@ async def test_create_user_already_exist():
     user_service = UserService(mock_repository)
     user_sign_up_data = {
         "email": "test@mail.com",
-        "password": "test12345",
+        "password": "Test12345?",
         "full_name": None,
     }
     test_user = RegistrationSchema(**user_sign_up_data)
@@ -99,7 +99,7 @@ async def test_create_user_exception():
     user_service = UserService(mock_repository)
     user_sign_up_data = {
         "email": "test@mail.com",
-        "password": "test12345",
+        "password": "Test12345?",
         "full_name": None,
     }
     test_user = RegistrationSchema(**user_sign_up_data)
@@ -110,6 +110,23 @@ async def test_create_user_exception():
 
     assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
     assert "failed" in exc.value.message.lower()
+
+
+@pytest.mark.parametrize(
+    "password",
+    ["short1A@", "nouppercase1@", "NOLOWERCASE1@", "NoNumber@", "NoSpecial1"],
+)
+@pytest.mark.asyncio
+async def test_create_user_invalid_password(password):
+    mock_repository = AsyncMock()
+    mock_repository.get_user_by_email.return_value = None
+    user_service = UserService(mock_repository)
+    with patch("app.services.users.async_log", new_callable=AsyncMock):
+        with pytest.raises(ItemCreateException):
+            test_user = RegistrationSchema(
+                email="test@example.com", password=password, full_name="Test"
+            )
+            await user_service.create_user(test_user)
 
 
 @pytest.mark.asyncio
@@ -135,8 +152,6 @@ async def test_get_users_success():
     assert len(response.users) == users_count
     assert response.users_count == users_count
     assert response.pages_count == ceil(users_count / size)
-    assert response.prev_page is None
-    assert response.next_page is None
     for i, user in enumerate(response.users):
         assert isinstance(user, UserBaseSchema)
         assert user.email == users_data[i]["email"]
@@ -229,7 +244,7 @@ async def test_update_user_success():
     user_service = UserService(mock_repository)
 
     user_update_data = {"email": "new@mail.com"}
-    update_user = UserUpdateSchema(**user_update_data)
+    update_user = UserShortSchema(**user_update_data)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         db_user = await user_service.update_user(user_model_data["id"], update_user)
@@ -246,7 +261,7 @@ async def test_update_user_not_found():
 
     user_service = UserService(mock_repository)
     user_update_data = {"email": "new@mail.com"}
-    update_user = UserUpdateSchema(**user_update_data)
+    update_user = UserShortSchema(**user_update_data)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         with pytest.raises(ItemNotFoundException) as exc:
@@ -263,7 +278,7 @@ async def test_update_user_exception():
     mock_repository.get_user_by_id.side_effect = Exception("DB Error.")
     user_service = UserService(mock_repository)
     user_update_data = {"email": "new@mail.com"}
-    update_user = UserUpdateSchema(**user_update_data)
+    update_user = UserShortSchema(**user_update_data)
     user_id = 2
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):

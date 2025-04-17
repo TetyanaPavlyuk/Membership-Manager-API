@@ -13,10 +13,10 @@ from app.exceptions.exceptions import (
     ExpiredTokenException,
     InvalidTokenException,
     UnauthorizedException,
-    RegisterException,
+    RegistrationException,
     LoginException,
-    InvalidTokenFormatException,
     GetCurrentUserException,
+    ForbiddenException,
 )
 
 
@@ -89,8 +89,8 @@ def add_exception_handlers(app: FastAPI):
             status_code=exc.status_code, content={"detail": exc.message}
         )
 
-    @app.exception_handler(RegisterException)
-    async def register_exception_handler(request, exc: RegisterException):
+    @app.exception_handler(RegistrationException)
+    async def registration_exception_handler(request, exc: RegistrationException):
         return JSONResponse(
             status_code=exc.status_code, content={"detail": exc.message}
         )
@@ -101,16 +101,14 @@ def add_exception_handlers(app: FastAPI):
             status_code=exc.status_code, content={"detail": exc.message}
         )
 
-    @app.exception_handler(InvalidTokenFormatException)
-    async def invalid_token_format_exception_handler(
-        request, exc: InvalidTokenFormatException
-    ):
+    @app.exception_handler(GetCurrentUserException)
+    async def get_current_user_exception_handler(request, exc: GetCurrentUserException):
         return JSONResponse(
             status_code=exc.status_code, content={"detail": exc.message}
         )
 
-    @app.exception_handler(GetCurrentUserException)
-    async def get_current_user_exception_handler(request, exc: GetCurrentUserException):
+    @app.exception_handler(ForbiddenException)
+    async def get_current_user_exception_handler(request, exc: ForbiddenException):
         return JSONResponse(
             status_code=exc.status_code, content={"detail": exc.message}
         )
