@@ -11,13 +11,14 @@ from httpx import AsyncClient, ASGITransport
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.testing import future
 
 from app.config.settings import settings
+from app.db.models import CompanyModel
 from app.db.session_postgresql import engine
 from app.db.models.users import UserModel
 from app.main import server
 from app.dependencies.users import get_async_db
+from app.repository.companies import CompanyRepository
 from app.repository.users import UserRepository
 from app.schemas.auth import LoginSchema
 from app.services.auth import AuthService
@@ -83,10 +84,28 @@ async def user_repository():
 
 
 @pytest_asyncio.fixture
+async def company_repository():
+    async with get_test_db() as session:
+        yield CompanyRepository(session)
+
+
+@pytest_asyncio.fixture
 def users_create_data():
     return [
         {"email": "test1@mail.com", "hashed_password": "test12345"},
         {"email": "test2@mail.com", "hashed_password": "test12345"},
+    ]
+
+
+@pytest_asyncio.fixture
+async def companies_create_data(user_repository):
+    return [
+        {
+            "name": "Some company",
+            "description": "Some description",
+            "is_visible": False,
+        },
+        {"name": "Other company", "description": None},
     ]
 
 
@@ -101,11 +120,20 @@ async def setup_users(user_repository, users_create_data):
 
 
 @pytest_asyncio.fixture
-async def clear_user_table():
-    async with get_test_db() as session:
-        await session.execute(text("TRUNCATE TABLE users RESTART IDENTITY CASCADE"))
-        await session.commit()
-        yield
+async def setup_companies(company_repository, user_repository, companies_create_data):
+    user = UserModel(email="test@mail.com", hashed_password="test12345")
+    db_user = await user_repository.save_user(user)
+    companies = [
+        CompanyModel(owner_id=db_user.id, **company_data)
+        for company_data in companies_create_data
+    ]
+    saved_companies = [
+        await company_repository.save_company(company) for company in companies
+    ]
+    yield saved_companies
+    for company in saved_companies:
+        await company_repository.delete_company(company)
+    await user_repository.delete_user(db_user)
 
 
 @pytest_asyncio.fixture

@@ -9,6 +9,7 @@ from alembic import context
 from app.db import session_postgresql
 from app.db.models.base import Base
 from app.db.models.users import UserModel
+from app.db.models.companies import CompanyModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
