@@ -105,7 +105,7 @@ async def companies_create_data(user_repository):
             "description": "Some description",
             "is_visible": False,
         },
-        {"name": "Other company", "description": None},
+        {"name": "Other company", "description": None, "is_visible": True},
     ]
 
 

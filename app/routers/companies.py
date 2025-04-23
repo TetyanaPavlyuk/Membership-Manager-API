@@ -14,7 +14,9 @@ from app.schemas.companies import (
 )
 
 
-company_router = APIRouter(prefix="/companies")
+company_router = APIRouter(
+    prefix="/companies", dependencies=[Depends(get_current_user)]
+)
 
 
 @company_router.get("/", response_model=CompanyListSchema)

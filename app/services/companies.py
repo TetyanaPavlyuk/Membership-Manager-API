@@ -1,6 +1,5 @@
 from math import ceil
 
-from app.db.models import UserModel
 from app.db.models.companies import CompanyModel
 from app.schemas.companies import (
     CompanyUpdateSchema,
@@ -121,7 +120,7 @@ class CompanyService:
             existing_company = await self.company_repository.get_company_by_name(
                 update_data.name
             )
-            if existing_company:
+            if existing_company and existing_company.id != db_company.id:
                 await async_log(
                     f"Company with name {update_data.name} is already exist."
                 )
@@ -139,7 +138,7 @@ class CompanyService:
                 f"Updating company {db_company.name} (ID {db_company.id}) was successful."
             )
             return CompanyDetailSchema.model_validate(db_company)
-        except ItemNotFoundException:
+        except (ItemNotFoundException, ItemAlreadyExistException):
             raise
         except Exception as e:
             await async_log(f"Failed to update company: {e}")

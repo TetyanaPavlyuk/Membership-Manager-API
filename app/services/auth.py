@@ -91,7 +91,7 @@ class AuthService:
             choice(string.ascii_lowercase)
             + choice(string.ascii_uppercase)
             + choice(string.digits)
-            + choice(string.punctuation)
+            + choice(r"""!"#$%&'()*+,-./:;<=>?@[\]^_{|}""")
         )
         return random_password
 
