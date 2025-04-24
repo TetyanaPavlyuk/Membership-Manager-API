@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models.base import Base
 from typing import Optional
 
@@ -20,3 +20,5 @@ class UserModel(Base):
     full_name: Mapped[Optional[str]] = mapped_column(
         String(255), default=None, nullable=True
     )
+
+    companies = relationship("CompanyModel", back_populates="owner")

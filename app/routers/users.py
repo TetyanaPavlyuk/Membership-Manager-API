@@ -19,10 +19,10 @@ user_router = APIRouter(prefix="/users", dependencies=[Depends(get_current_user)
 @user_router.get("/", response_model=UserListSchema)
 async def get_users(
     page: int = 1,
-    size: int = 10,
+    limit: int = 10,
     user_service: UserService = Depends(get_user_service),
 ) -> UserListSchema:
-    return await user_service.get_users(page, size)
+    return await user_service.get_users(page, limit)
 
 
 @user_router.get("/{id}/", response_model=UserDetailSchema)
@@ -41,7 +41,7 @@ async def create_user(
 
 
 @user_router.patch(
-    "/{id}", response_model=UserDetailSchema, dependencies=[Depends(can_modify_user)]
+    "/{id}/", response_model=UserDetailSchema, dependencies=[Depends(can_modify_user)]
 )
 async def update_user(
     id: str,
@@ -51,7 +51,7 @@ async def update_user(
     return await user_service.update_user(id, update_data)
 
 
-@user_router.delete("/{id}", dependencies=[Depends(can_modify_user)])
+@user_router.delete("/{id}/", dependencies=[Depends(can_modify_user)])
 async def delete_user(
     id: str,
     user_service: UserService = Depends(get_user_service),

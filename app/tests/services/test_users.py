@@ -146,7 +146,7 @@ async def test_get_users_success():
     size = 5
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
-        response = await user_service.get_users(page=page, size=size)
+        response = await user_service.get_users(page=page, limit=size)
 
     assert isinstance(response, UserListSchema)
     assert len(response.users) == users_count
@@ -167,7 +167,7 @@ async def test_get_users_exception():
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
         with pytest.raises(ItemsListException) as exc:
-            await user_service.get_users(page=1, size=2)
+            await user_service.get_users(page=1, limit=2)
 
     assert exc.value.status_code == status.HTTP_400_BAD_REQUEST
     assert "failed" in exc.value.message.lower()
@@ -187,7 +187,7 @@ async def test_get_user_success():
     user_service = UserService(mock_repository)
 
     with patch("app.services.users.async_log", new_callable=AsyncMock):
-        user = await user_service.get_user(id=user_data["id"])
+        user = await user_service.get_user(user_id=user_data["id"])
 
     assert isinstance(user, UserDetailSchema)
     assert user.id == user_data["id"]

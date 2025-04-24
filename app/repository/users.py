@@ -32,11 +32,11 @@ class UserRepository:
             await async_log(f"Failed to get users list from DB: {e}")
             raise DatabaseError(e)
 
-    async def get_user_by_id(self, id: int):
+    async def get_user_by_id(self, user_id: str):
         try:
-            return await self.db.get(UserModel, id)
+            return await self.db.get(UserModel, user_id)
         except SQLAlchemyError as e:
-            await async_log(f"Failed to get user (ID {id}) from DB: {e}")
+            await async_log(f"Failed to get user (ID {user_id}) from DB: {e}")
             raise DatabaseError(e)
 
     async def get_user_by_email(self, email: str):
