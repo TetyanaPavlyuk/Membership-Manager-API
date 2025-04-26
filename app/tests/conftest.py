@@ -18,8 +18,13 @@ from app.db.session_postgresql import engine
 from app.db.models.users import UserModel
 from app.main import server
 from app.dependencies.users import get_async_db
-from app.repository.companies import CompanyRepository
-from app.repository.users import UserRepository
+from app.repository import (
+    CompanyRepository,
+    InvitationRepository,
+    UserRepository,
+    RequestRepository,
+    MembershipRepository,
+)
 from app.schemas.auth import LoginSchema
 from app.services.auth import AuthService
 
@@ -90,6 +95,24 @@ async def company_repository():
 
 
 @pytest_asyncio.fixture
+async def invitation_repository():
+    async with get_test_db() as session:
+        yield InvitationRepository(session)
+
+
+@pytest_asyncio.fixture
+async def request_repository():
+    async with get_test_db() as session:
+        yield RequestRepository(session)
+
+
+@pytest_asyncio.fixture
+async def membership_repository():
+    async with get_test_db() as session:
+        yield MembershipRepository(session)
+
+
+@pytest_asyncio.fixture
 def users_create_data():
     return [
         {"email": "test1@mail.com", "hashed_password": "test12345"},
@@ -98,7 +121,7 @@ def users_create_data():
 
 
 @pytest_asyncio.fixture
-async def companies_create_data(user_repository):
+def companies_create_data(user_repository):
     return [
         {
             "name": "Some company",

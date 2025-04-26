@@ -25,11 +25,11 @@ async def get_users(
     return await user_service.get_users(page, limit)
 
 
-@user_router.get("/{id}/", response_model=UserDetailSchema)
+@user_router.get("/{user_id}/", response_model=UserDetailSchema)
 async def get_user(
-    id: str, user_service: UserService = Depends(get_user_service)
+    user_id: str, user_service: UserService = Depends(get_user_service)
 ) -> UserDetailSchema:
-    return await user_service.get_user(id)
+    return await user_service.get_user(user_id)
 
 
 @user_router.post("/", response_model=UserDetailSchema)
@@ -41,20 +41,22 @@ async def create_user(
 
 
 @user_router.patch(
-    "/{id}/", response_model=UserDetailSchema, dependencies=[Depends(can_modify_user)]
+    "/{user_id}/",
+    response_model=UserDetailSchema,
+    dependencies=[Depends(can_modify_user)],
 )
 async def update_user(
-    id: str,
+    user_id: str,
     update_data: UserUpdateSchema,
     user_service: UserService = Depends(get_user_service),
 ) -> UserDetailSchema:
-    return await user_service.update_user(id, update_data)
+    return await user_service.update_user(user_id, update_data)
 
 
-@user_router.delete("/{id}/", dependencies=[Depends(can_modify_user)])
+@user_router.delete("/{user_id}/", dependencies=[Depends(can_modify_user)])
 async def delete_user(
-    id: str,
+    user_id: str,
     user_service: UserService = Depends(get_user_service),
 ) -> JSONResponse:
-    result = await user_service.delete_user(id)
+    result = await user_service.delete_user(user_id)
     return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content=result)

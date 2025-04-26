@@ -7,10 +7,10 @@ from app.utils.logger import async_log
 
 
 async def can_modify_user(
-    modify_user_id: str = Path(..., alias="id"),
+    modify_user_id: str = Path(..., alias="user_id"),
     current_user: UserDetailSchema = Depends(get_current_user),
 ):
     if current_user.id != modify_user_id:
-        async_log("User does not have permission to access this resource")
+        await async_log("User does not have permission to access this resource")
         raise ForbiddenException
     return True

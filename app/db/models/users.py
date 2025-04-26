@@ -1,4 +1,3 @@
-import uuid
 from sqlalchemy import String, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.models.base import Base
@@ -8,9 +7,6 @@ from typing import Optional
 class UserModel(Base):
     __tablename__ = "users"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, index=True, default=lambda: str(uuid.uuid4())
-    )
     email: Mapped[str] = mapped_column(
         String(255), unique=True, index=True, nullable=False
     )
@@ -22,3 +18,12 @@ class UserModel(Base):
     )
 
     companies = relationship("CompanyModel", back_populates="owner")
+    invitations = relationship(
+        "InvitationModel", back_populates="user", cascade="all, delete"
+    )
+    requests = relationship(
+        "RequestModel", back_populates="user", cascade="all, delete"
+    )
+    memberships = relationship(
+        "MembershipModel", back_populates="user", cascade="all, delete"
+    )
