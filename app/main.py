@@ -3,10 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config.settings import settings
 from app.exceptions.handlers import add_exception_handlers
-from app.routers.healthcheck import healthcheck_router
-from app.routers.users import user_router
-from app.routers.auth import auth_router
-from app.routers.companies import company_router
+from app.routers import (
+    healthcheck_router,
+    user_router,
+    auth_router,
+    company_router,
+    invitation_router,
+    request_router,
+    membership_router,
+)
 
 
 class Server:
@@ -17,6 +22,9 @@ class Server:
         self.app.include_router(user_router)
         self.app.include_router(auth_router)
         self.app.include_router(company_router)
+        self.app.include_router(invitation_router)
+        self.app.include_router(request_router)
+        self.app.include_router(membership_router)
 
         origins = settings.parse_origins
         self.app.add_middleware(

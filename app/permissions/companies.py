@@ -17,6 +17,6 @@ async def can_modify_company(
     company = await company_service.get_company(company_id, current_user.id)
 
     if company.owner_id != current_user.id:
-        async_log("User does not have permission to access this resource")
+        await async_log("User does not have permission to access this resource")
         raise ForbiddenException
     return company

@@ -63,7 +63,7 @@ class CompanyService:
                 await async_log(f"Company (ID {company_id}) not found.")
                 raise ItemNotFoundException("Company")
             if db_company.owner_id != owner_id and db_company.is_visible is False:
-                async_log("User does not have permission to access this company")
+                await async_log("User does not have permission to access this company")
                 raise ForbiddenException
             await async_log(f"Getting company (ID {company_id}) was successful.")
             return CompanyDetailSchema.model_validate(db_company)
